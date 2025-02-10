@@ -9,7 +9,6 @@ use App\Models\Event;
 use Illuminate\Support\Facades\Http;
 
 
-
 class SendMessageController extends Controller
 {
    
@@ -20,6 +19,74 @@ class SendMessageController extends Controller
     }
 
     public function smsMethod(Request $request)
+    {
+        try {
+            // Retrieve all request data
+            $data = $request->all();
+    
+            // Log the received data for debugging
+            Log::info('Received SMS Data:', $data);
+    
+            // Validate that event_id is provided
+            if (!isset($data['event_id'])) {
+                return response()->json([
+                    'message' => 'event_id is required!',
+                    'received_data' => $data
+                ], 400);
+            }
+    
+            // Fetch event data using event_id
+            $event = Event::where('event_id', $data['event_id'])->first();
+    
+            // Check if event exists
+            if (!$event) {
+                return response()->json([
+                    'message' => 'Event not found!',
+                    'event_id' => $data['event_id']
+                ], 404);
+            }
+    
+            // Construct the invitation message
+            $invitationMessage = "Mpendwa {$data['name']},\n\n";
+            $invitationMessage .= "Tunayo furaha kukualika kwenye {$event->event_title}, itakayofanyika tarehe {$event->event_date} katika {$event->event_venue}. ";
+            $invitationMessage .= "Tukio hili litakuwa fursa nzuri ya kushiriki mazungumzo yenye tija, kufanya mawasiliano muhimu, na kuwa na wakati wa kufurahisha.\n\n";
+            $invitationMessage .= "📍 Mahali: {$event->event_location}\n";
+            $invitationMessage .= "🕒 Muda: {$event->event_start_time} - {$event->event_end_time}\n";
+            $invitationMessage .= "📅 Tarehe: {$event->event_date}\n\n";
+            $invitationMessage .= "Tutafurahi sana uwe mgeni wetu. Tafadhali thibitisha uwepo wako kwa kujibu ujumbe huu. ";
+            $invitationMessage .= "Ikiwa una maswali yoyote, usisite kuwasiliana nasi.\n\n";
+            $invitationMessage .= "Tunatarajia kukuona!\n\n";
+            $invitationMessage .= "Kwa heshima,\n";
+            $invitationMessage .= "[Jina Lako / Jina la Taasisi]\n";
+            $invitationMessage .= "📞 [Maelezo ya Mawasiliano]";  
+            
+    
+            // Return the invitation message along with event details
+            return response()->json([
+                'message' => 'Event found successfully!',
+                'event' => $event,
+                'invitation_message' => $invitationMessage
+            ]);
+    
+        } catch (\Exception $e) {
+            // Log the error
+            Log::error('Error in smsMethod: ' . $e->getMessage());
+    
+            // Return a server error response
+            return response()->json([
+                'message' => 'An unexpected error occurred.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    public function sendBoth(Request $request)
+    {
+        return response()->json(['message' => 'Both WhatsApp and SMS endpoint hit!']);
+    }
+
+
+    public function smsMethod2(Request $request)
     {
         try {
             // Retrieve all request data
@@ -106,7 +173,7 @@ class SendMessageController extends Controller
             ], 500);
         }
     }
-    
+// ==========================================================================================
 
     public function sendToAllMember(Request $request)
     {
