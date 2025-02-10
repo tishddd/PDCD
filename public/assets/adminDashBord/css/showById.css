@@ -1,0 +1,329 @@
+
+.root{
+    --blue: #137eff;
+  --indigo: #6610f2;
+  --purple: #7460ee;
+  --pink: #e83e8c;
+  --red: #f62d51;
+  --orange: #fb8c00;
+  --yellow: #ffbc34;
+  --green: #36bea6;
+  --teal: #20c997;
+  --cyan: #4fc3f7;
+  --white: #fff;
+  --gray: #6c757d;
+  --gray-dark: #414755;
+  --blue: #137eff;
+  --indigo: #6610f2;
+  --purple: #7460ee;
+  --pink: #e83e8c;
+  --red: #f62d51;
+  --orange: #fb8c00;
+  --yellow: #ffbc34;
+  --green: #36bea6;
+  --teal: #20c997;
+  --cyan: #4fc3f7;
+  --white: #fff;
+  --gray: #6c757d;
+  --primary: #7460ee;
+  --secondary: #6c757d;
+  --success: #36bea6;
+  --info: #137eff;
+  --warning: #ffbc34;
+  --danger: #f62d51;
+  --light: #f1f6f8;
+  --dark: #414755;
+  --cyan: #4fc3f7;
+  --orange: #fb8c00;
+  --purple: #7460ee;
+}
+body {
+
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    background: linear-gradient(33deg, #492155, #111, #280531, #111, #492155);
+    background-size: 400% 400%;
+    animation: gradientAnimation 15s ease infinite;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Card Styling */
+.card {
+    background: linear-gradient(33deg, #492155, #111, #280531, #111, #492155);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background: rgba(73, 33, 85, 0.9);
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+h4 {
+    margin: 0;
+}
+
+/* Input Styling */
+input, select {
+    background: transparent;
+    color: #fff;
+    border: 1px solid #fff;
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #492155;
+    box-shadow: 0 0 8px #492155;
+}
+
+/* Button Styling */
+.btn {
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #492155;
+    color: #fff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #280531;
+}
+
+.btn-success {
+    background-color: #6610f2;
+    color: #fff;
+    border: none;
+}
+
+.btn-message {
+    background-color: #414755;
+    color: #fff;
+    border: none;
+}
+
+.btn-mesclearsage:hover {
+    background-color: #218838;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+    margin-top: 15px;
+    table-layout: auto; /* Allow table columns to expand based on content */
+}
+
+th, td {
+    border: 1px solid #fff;
+    padding: 8px; /* Reduces padding for compact spacing */
+    text-align: left;
+    word-wrap: break-word; /* Ensures long text breaks to fit */
+    white-space: nowrap; /* Prevents unnecessary line breaks */
+}
+
+td {
+    max-width: 250px; /* Allows text to fit within a defined space */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Adds "..." for overflowing text */
+}
+
+th {
+    background: rgba(73, 33, 85, 0.9);
+}
+
+.btn-custom-edit {
+    background-color: #ffc107; /* Bootstrap's warning color */
+    border-color: #ffc107;
+}
+
+.btn-custom-invite {
+    background-color: #28a745; /* Green */
+    border-color: #28a745;
+}
+
+.btn-custom-call {
+    background-color: #17a2b8; /* Cyan */
+    border-color: #17a2b8;
+}
+
+.btn-custom-check {
+    background-color: #6c757d; /* Gray */
+    border-color: #6c757d;
+}
+
+/* Optional: Add hover effects */
+.btn-custom-edit:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+.btn-custom-invite:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-custom-call:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+}
+
+.btn-custom-check:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+/* -----------------------------------------end-------------------------------------------- */
+/* ----------------------------------------------table testing------------------- */
+/* Column Width Flexibility */
+th:nth-child(1), td:nth-child(1) {
+    min-width: 80px;
+    width: 50%; /* Minimum and flexible width for ID column */
+}
+
+th:nth-child(2), td:nth-child(2) {
+    min-width: 150px;
+    width: 15%; /* Name column can expand as necessary */
+}
+
+th:nth-child(3), td:nth-child(3) {
+    min-width: 40px;
+    width: 25%; /* Phone column with flexible width */
+}
+
+th:nth-child(5), td:nth-child(50) {
+    min-width: 100px;
+    width: 25%; /* Phone column with flexible width */
+}
+/* --------------------------------------------------table testing end ---------------------------------------- */
+
+/* Responsive Table Styling */
+@media screen and (max-width: 768px) {
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    th {
+        text-align: right;
+        font-weight: bold;
+    }
+
+    td {
+        text-align: left;
+        position: relative;
+        padding-left: 50%; /* Add space for labels */
+    }
+
+    td:before {
+        content: attr(data-label); /* Dynamically set label for each column */
+        position: absolute;
+        left: 0;
+        top: 0;
+        font-weight: bold;
+        padding-right: 10px;
+    }
+/* ---------------------------------------------test--------------------------------------------- */
+}
+
+/* Container Styling */
+.container {
+    max-width: 1900px;
+    margin-top: 30;
+    margin-left: 20;
+    padding: 0 20px;
+}
+
+.row {
+    display: flex;
+    gap: 20px;
+}
+
+.col-md-6 {
+    flex: 1;
+}
+
+/* Modal Styling */
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(33deg, #492155, #111, #280531, #111, #492155);
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    display: none;
+}
+
+.modal.active {
+    display: block;
+}
+
+.modal-header, .modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h5 {
+    margin: 0;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+    margin-top: 15px;
+}
