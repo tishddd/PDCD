@@ -524,7 +524,7 @@ window.sendMessageViaSmS = async function () {
     const status = document.getElementById('status').value;
     const total = document.getElementById('total').value;
 
-    const formattedPhone = memberPhone.startsWith('+') ? memberPhone : `+${memberPhone}`;
+    const formattedPhone = memberPhone.startsWith('0') ? memberPhone : `0${memberPhone}`;
 
     const messageData = {
         event_id: event_id,
@@ -535,15 +535,7 @@ window.sendMessageViaSmS = async function () {
         total: total,
     };
 
-    // Print each value to the console
-    console.log("Event ID:", event_id);
-    console.log("ID:", id);
-    console.log("Member Name:", memberName);
-    console.log("Member Phone:", memberPhone);
-    console.log("Formatted Phone:", formattedPhone);
-    console.log("Status:", status);
-    console.log("Total:", total);
-    console.log("Message Data:", messageData);
+    console.log("Sending SMS with data:", messageData);
 
     try {
         const response = await fetch('http://localhost:8000/api/send-message/text', {
@@ -555,9 +547,13 @@ window.sendMessageViaSmS = async function () {
         });
 
         const result = await response.json();
-        console.log("Server Response:", result); // Print server response
+        console.log("Server Response:", result); // Log the full response
 
-        alert(result.message); // Display the response message
+        if (response.ok) {
+            alert(`✅ ${result.message}\n📩 SMS Response: ${JSON.stringify(result.response)}`);
+        } else {
+            alert(`❌ Error: ${result.message}`);
+        }
     } catch (error) {
         console.error('Error sending message:', error);
         alert('An error occurred while sending the message.');

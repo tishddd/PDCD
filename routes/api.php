@@ -5,6 +5,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SendMessageController;
+use App\Http\Controllers\CurlTestController;
 
 
 
@@ -49,6 +50,11 @@ Route::post('/send-message/text', [SendMessageController::class, 'smsMethod']);
 Route::post('/send-message/both', [SendMessageController::class, 'sendBoth']);
 Route::post('/send-message/allmember', [SendMessageController::class, 'sendToAllMember']);
 Route::post('/send-message/whatxapp', [SendMessageController::class, 'store']);
+
+
+// -----------------------------------TEST SSL -------------------------------------------------
+
+Route::get('/test-curl', [CurlTestController::class, 'testCurl']);
 
 
 

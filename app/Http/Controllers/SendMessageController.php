@@ -18,7 +18,7 @@ class SendMessageController extends Controller
         return response()->json(['message' => 'WhatsApp message endpoint hit!']);
     }
 
-    public function smsMethod(Request $request)
+    public function smsMethod2(Request $request)
     {
         try {
             // Retrieve all request data
@@ -86,7 +86,7 @@ class SendMessageController extends Controller
     }
 
 
-    public function smsMethod2(Request $request)
+    public function smsMethod(Request $request)
     {
         try {
             // Retrieve all request data
@@ -124,15 +124,15 @@ class SendMessageController extends Controller
             $invitationMessage = "Mpendwa {$data['name']},\n\n";
             $invitationMessage .= "Tunayo furaha kukualika kwenye {$event->event_title}, itakayofanyika tarehe {$event->event_date} katika {$event->event_venue}. ";
             $invitationMessage .= "Tukio hili litakuwa fursa nzuri ya kushiriki mazungumzo yenye tija, kufanya mawasiliano muhimu, na kuwa na wakati wa kufurahisha.\n\n";
-            $invitationMessage .= "📍 Mahali: {$event->event_location}\n";
-            $invitationMessage .= "🕒 Muda: {$event->event_start_time} - {$event->event_end_time}\n";
-            $invitationMessage .= "📅 Tarehe: {$event->event_date}\n\n";
+            $invitationMessage .= " Mahali: {$event->event_location}\n";
+            $invitationMessage .= " Muda: {$event->event_start_time} - {$event->event_end_time}\n";
+            $invitationMessage .= " Tarehe: {$event->event_date}\n\n";
             $invitationMessage .= "Tutafurahi sana uwe mgeni wetu. Tafadhali thibitisha uwepo wako kwa kujibu ujumbe huu. ";
             $invitationMessage .= "Ikiwa una maswali yoyote, usisite kuwasiliana nasi.\n\n";
             $invitationMessage .= "Tunatarajia kukuona!\n\n";
             $invitationMessage .= "Kwa heshima,\n";
             $invitationMessage .= "[Jina Lako / Jina la Taasisi]\n";
-            $invitationMessage .= "📞 [Maelezo ya Mawasiliano]";
+            $invitationMessage .= " [Maelezo ya Mawasiliano]";
     
             // API URL
             $apiUrl = "https://messaging-service.co.tz/api/sms/v1/text/single";
@@ -147,9 +147,9 @@ class SendMessageController extends Controller
             // Payload
             $payload = [
                 "from"      => "THIRDWAVE",
-                "to"        => $phone,
+                "to"        => "255710056152",
                 "text"      => $invitationMessage,
-                "reference" => "xakfkfgt"
+                "reference" => "xaioiofgt"
             ];
     
             // Send request
