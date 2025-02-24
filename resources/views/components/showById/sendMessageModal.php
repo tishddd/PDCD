@@ -23,6 +23,16 @@
                 </button>
             </div>
 
+            <!-- Hidden Inputs for Data -->
+            <div class="modal-body">
+                <input type="hidden" id="id">
+                <input type="hidden" id="memberName">
+                <input type="hidden" id="memberPhone">
+                <input type="hidden" id="status">
+                <input type="hidden" id="total">
+                <input type="hidden" id="passCode">
+            </div>
+
             <!-- WhatsApp Message Section -->
             <div class="modal-footer d-flex justify-content-between align-items-center" style="padding: 15px;">
                 <button type="button" class="btn btn-primary" disabled>WhatsApp</button>
