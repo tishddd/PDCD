@@ -8,18 +8,107 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Event;
 use Illuminate\Support\Facades\Http;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 
 
 class SendMessageController extends Controller
 {
 
+
+    //-------------------------------SEND WHATSAPP MESSAGE WITH CARD-------------------------------/
+
+
+    // public function whatsappMethod(Request $request)
+    // {
+    //     try {
+    //         $data = $request->all();
+
+    //         $event_id = $data['event_id'] ?? null;
+    //         $id = $data['id'] ?? null;
+    //         $name = $data['name'] ?? null;
+    //         $passcode = $data['passcode'] ?? null;
+    //         $phone = $data['phone'] ?? null;
+    //         $status = $data['status'] ?? null;
+    //         $total = $data['total'] ?? null;
+    //         $eventCardUrl = $data['event_card'] ?? null; // Image URL
+
+    //         if (!$eventCardUrl) {
+    //             return response()->json([
+    //                 'message' => 'Event card image URL is missing',
+    //                 'response' => 'Error'
+    //             ], 400);
+    //         }
+
+    //         // ✅ Extract only the relative storage path
+    //         $parsedUrl = parse_url($eventCardUrl, PHP_URL_PATH);
+    //         $relativePath = str_replace('/storage/', '', $parsedUrl);
+    //         $eventCardPath = storage_path('app/public/' . $relativePath);
+
+    //         // ✅ Check if the file exists in storage
+    //         if (!file_exists($eventCardPath)) {
+    //             return response()->json([
+    //                 'message' => "Event card image not found at: $eventCardPath",
+    //                 'response' => 'Error'
+    //             ], 404);
+    //         }
+
+    //         // Load the event card dynamically
+    //         $cardImage = imagecreatefromstring(file_get_contents($eventCardPath));
+
+    //         $cardWidth = imagesx($cardImage);
+    //         $cardHeight = imagesy($cardImage);
+
+    //         // Generate QR Code
+    //         $qrData = "Passcode: $passcode";
+    //         $qrCode = QrCode::format('png')->size(200)->margin(4)->generate($qrData);
+    //         $qrImage = imagecreatefromstring($qrCode);
+
+    //         // Resize QR Code to fit the bottom-left corner
+    //         $qrSize = $cardWidth * 0.2; // 20% of the card width
+    //         $qrResized = imagecreatetruecolor($qrSize, $qrSize);
+    //         imagealphablending($qrResized, false);
+    //         imagesavealpha($qrResized, true);
+    //         imagecopyresampled($qrResized, $qrImage, 0, 0, 0, 0, $qrSize, $qrSize, imagesx($qrImage), imagesy($qrImage));
+
+    //         // Merge QR Code onto the event card (Bottom-left corner)
+    //         $qrX = 20; // 20px padding from left
+    //         $qrY = $cardHeight - $qrSize - 20; // 20px padding from bottom
+    //         imagecopy($cardImage, $qrResized, $qrX, $qrY, 0, 0, $qrSize, $qrSize);
+
+    //         // Save final image
+    //         ob_start();
+    //         imagepng($cardImage);
+    //         $finalImage = ob_get_clean();
+
+    //         $fileName = 'event_card_qr_' . time() . '.png';
+    //         Storage::disk('public')->put('cards/' . $fileName, $finalImage);
+
+    //         // Free memory
+    //         imagedestroy($qrImage);
+    //         imagedestroy($qrResized);
+    //         imagedestroy($cardImage);
+
+    //         return response()->json([
+    //             'message' => 'QR Code added to event card successfully',
+    //             'data' => compact('event_id', 'id', 'name', 'passcode', 'phone', 'status', 'total', 'event_card'),
+    //             'qr_card_path' => asset('storage/cards/' . $fileName) // Public URL of the saved card with QR code
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         Log::error('Error overlaying QR Code: ' . $e->getMessage());
+
+    //         return response()->json([
+    //             'message' => 'An error occurred while processing your request.',
+    //             'error' => $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
+
     public function whatsappMethod(Request $request)
     {
         try {
-            // Retrieve all request data
             $data = $request->all();
-
-            // Extract values into variables
+    
             $event_id = $data['event_id'] ?? null;
             $id = $data['id'] ?? null;
             $name = $data['name'] ?? null;
@@ -27,73 +116,151 @@ class SendMessageController extends Controller
             $phone = $data['phone'] ?? null;
             $status = $data['status'] ?? null;
             $total = $data['total'] ?? null;
-
-            if (!$passcode) {
+            $eventCardFilename = $data['event_card'] ?? null; // Filename only (e.g., "1738783082-card.jpg")
+    
+            if (!$eventCardFilename) {
                 return response()->json([
-                    'message' => 'Passcode not found',
+                    'message' => 'Event card image filename is missing',
                     'response' => 'Error'
                 ], 400);
             }
-
-            // Combine extracted values into a formatted string
+    
+            // ✅ Use the correct path based on the filename
+            $cardPath = storage_path('app/public/event_cards/' . $eventCardFilename);
+    
+            if (!file_exists($cardPath)) {
+                return response()->json([
+                    'message' => "Event card image not found at: $cardPath",
+                    'response' => 'Error'
+                ], 404);
+            }
+    
+            // Load the event card dynamically
+            $cardImage = imagecreatefromstring(file_get_contents($cardPath));
+    
+            $cardWidth = imagesx($cardImage);
+            $cardHeight = imagesy($cardImage);
+    
+            // Generate QR Code
             $qrData = "Passcode: $passcode";
-
-            // Generate QR code containing all values
-            $qrCode = QrCode::format('png')
-                ->size(200) // Set the size of the QR code
-                ->margin(4) // Add padding around the QR code
-                ->generate($qrData);
-
-            // Load the QR code into a GD image resource
-            $image = imagecreatefromstring($qrCode);
-
-            // Get the dimensions of the QR code
-            $qrWidth = imagesx($image);
-            $qrHeight = imagesy($image);
-
-            // Create a new image with a green background
-            $backgroundWidth = $qrWidth + 40; // Add extra space for padding
-            $backgroundHeight = $qrHeight + 40; // Add extra space for padding
-            $background = imagecreatetruecolor($backgroundWidth, $backgroundHeight);
-
-            // Define the green color (RGB: 0, 128, 0)
-            $green = imagecolorallocate($background, 0, 128, 0);
-
-            // Fill the background with green
-            imagefill($background, 0, 0, $green);
-
-            // Paste the QR code onto the green background
-            $x = ($backgroundWidth - $qrWidth) / 2; // Center the QR code horizontally
-            $y = ($backgroundHeight - $qrHeight) / 2; // Center the QR code vertically
-            imagecopy($background, $image, $x, $y, 0, 0, $qrWidth, $qrHeight);
-
-            // Capture the final image as a PNG
+            $qrCode = QrCode::format('png')->size(200)->margin(4)->generate($qrData);
+            $qrImage = imagecreatefromstring($qrCode);
+    
+            // Resize QR Code to fit the bottom-left corner
+            $qrSize = $cardWidth * 0.2; // 20% of the card width
+            $qrResized = imagecreatetruecolor($qrSize, $qrSize);
+            imagealphablending($qrResized, false);
+            imagesavealpha($qrResized, true);
+            imagecopyresampled($qrResized, $qrImage, 0, 0, 0, 0, $qrSize, $qrSize, imagesx($qrImage), imagesy($qrImage));
+    
+            // Merge QR Code onto the event card (Bottom-left corner)
+            $qrX = 20; // 20px padding from left
+            $qrY = $cardHeight - $qrSize - 20; // 20px padding from bottom
+            imagecopy($cardImage, $qrResized, $qrX, $qrY, 0, 0, $qrSize, $qrSize);
+    
+            // Save final image
             ob_start();
-            imagepng($background);
+            imagepng($cardImage);
             $finalImage = ob_get_clean();
-
-            // Encode the final image as Base64 to display in an image tag
-            $qrCodeBase64 = 'data:image/png;base64,' . base64_encode($finalImage);
-
-            // Free up memory
-            imagedestroy($image);
-            imagedestroy($background);
-
+    
+            $fileName = 'event_card_qr_' . time() . '.png';
+            Storage::disk('public')->put('cards/' . $fileName, $finalImage);
+    
+            // Free memory
+            imagedestroy($qrImage);
+            imagedestroy($qrResized);
+            imagedestroy($cardImage);
+    
             return response()->json([
-                'message' => 'QR Code generated successfully',
-                'data' => compact('event_id', 'id', 'name', 'passcode', 'phone', 'status', 'total'),
-                'response' => $qrCodeBase64
+                'message' => 'QR Code added to event card successfully',
+                'data' => compact('event_id', 'id', 'name', 'passcode', 'phone', 'status', 'total', 'eventCardFilename'),
+                'qr_card_path' => asset('storage/cards/' . $fileName) // Public URL of the saved card with QR code
             ]);
         } catch (\Exception $e) {
-            // Log error for debugging
-            Log::error('Error generating QR Code: ' . $e->getMessage());
-
+            Log::error('Error overlaying QR Code: ' . $e->getMessage());
+    
             return response()->json([
                 'message' => 'An error occurred while processing your request.',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
+    
+    // public function whatsappMethod(Request $request)
+    // {
+    //     try {
+    //         $data = $request->all();
+
+    //         $event_id = $data['event_id'] ?? null;
+    //         $id = $data['id'] ?? null;
+    //         $name = $data['name'] ?? null;
+    //         $passcode = $data['passcode'] ?? null;
+    //         $phone = $data['phone'] ?? null;
+    //         $status = $data['status'] ?? null;
+    //         $total = $data['total'] ?? null;
+    //         $event_card = $data['event_card'] ?? null;
+
+    //         if (!$passcode) {
+    //             return response()->json([
+    //                 'message' => 'Passcode not found',
+    //                 'response' => 'Error'
+    //             ], 400);
+    //         }
+
+    //         $qrData = "Passcode: $passcode";
+
+    //         $qrCode = QrCode::format('png')
+    //             ->size(200)
+    //             ->margin(4)
+    //             ->generate($qrData);
+
+    //         $image = imagecreatefromstring($qrCode);
+    //         $qrWidth = imagesx($image);
+    //         $qrHeight = imagesy($image);
+
+    //         $backgroundWidth = $qrWidth + 40;
+    //         $backgroundHeight = $qrHeight + 40;
+    //         $background = imagecreatetruecolor($backgroundWidth, $backgroundHeight);
+
+    //         $green = imagecolorallocate($background, 0, 128, 0);
+    //         imagefill($background, 0, 0, $green);
+
+    //         $x = ($backgroundWidth - $qrWidth) / 2;
+    //         $y = ($backgroundHeight - $qrHeight) / 2;
+    //         imagecopy($background, $image, $x, $y, 0, 0, $qrWidth, $qrHeight);
+
+    //         ob_start();
+    //         imagepng($background);
+    //         $finalImage = ob_get_clean();
+
+    //         $qrCodeBase64 = 'data:image/png;base64,' . base64_encode($finalImage);
+
+    //         // Save the image in Laravel storage (storage/app/public/cards/)
+    //         $fileName = 'qr_card_' . time() . '.png';
+    //         Storage::disk('public')->put('cards/' . $fileName, $finalImage);
+
+    //         // Free memory
+    //         imagedestroy($image);
+    //         imagedestroy($background);
+
+    //         return response()->json([
+    //             'message' => 'QR Code generated successfully',
+    //             'data' => compact('event_id', 'id', 'name', 'passcode', 'phone', 'status', 'total', 'event_card'),
+    //             'response' => $qrCodeBase64,
+    //             'qr_card_path' => asset('storage/cards/' . $fileName) // Get public URL for the stored file
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         Log::error('Error generating QR Code: ' . $e->getMessage());
+
+    //         return response()->json([
+    //             'message' => 'An error occurred while processing your request.',
+    //             'error' => $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
+
+    //------------------------------------------end ------------------------------------------------------
+
 
 
     public function sendBoth(Request $request)

@@ -205,6 +205,37 @@
 
     <!-- ------------------------------------------------------------retreave card from event data----------------------------------------------- -->
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventData = {
+                event_id: urlParams.get("event_id"),
+            };
+
+            console.log("Query Params Data:", eventData);
+
+            const apiUrl = `http://127.0.0.1:8000/api/events/${eventData.event_id}`;
+
+            $.ajax({
+                url: apiUrl,
+                type: "GET",
+                dataType: "json",
+                success: function(data) {
+                    console.log("Data retrieved:", data);
+
+                    // Store event card data in a global variable
+                    window.eventCardData = data;
+
+                    // Dynamically set the src attribute of the <img> tag
+                    const eventCardImg = document.querySelector("#event_card_img");
+                    eventCardImg.src = `http://127.0.0.1:8000/${data.event_card}`;
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error fetching data:", error);
+                }
+            });
+        });
+    </script>
+    <!-- <script>
         // Wait for the DOM content to be fully loaded before executing the script
         document.addEventListener("DOMContentLoaded", function() {
             // Extract URL query parameters using URLSearchParams
@@ -237,8 +268,7 @@
                     const eventCardImg = document.querySelector("#event_card_img");
                     eventCardImg.src = eventCardUrl;
 
-                    // Fetch the QR code
-                    fetchQRCode(eventData.event_id, eventCardImg);
+          
                 },
                 error: function(xhr, status, error) {
                     // Log any errors encountered during the request to the console
@@ -248,44 +278,44 @@
         });
 
         // Function to fetch the QR code and overlay it on the event card
-        function fetchQRCode(eventId, eventCardImg) {
-            // Define the API endpoint URL for the QR code
-            const qrCodeApiUrl = `http://127.0.0.1:8000/api/send-message/whatsapp`;
+        // function fetchQRCode(eventId, eventCardImg) {
+        //     // Define the API endpoint URL for the QR code
+        //     const qrCodeApiUrl = `http://127.0.0.1:8000/api/send-message/whatsapp`;
 
-            // Perform an AJAX request to fetch the QR code
-            $.ajax({
-                url: qrCodeApiUrl,
-                type: "POST",
-                dataType: "json",
-                data: {
-                    event_id: eventId,
-                    passcode: "123456" // Replace with the actual passcode or fetch it dynamically
-                },
-                success: function(qrCodeData) {
-                    // Log the QR code data retrieved from the API to the console
-                    console.log("QR Code Data:", qrCodeData);
+        //     // Perform an AJAX request to fetch the QR code
+        //     $.ajax({
+        //         url: qrCodeApiUrl,
+        //         type: "POST",
+        //         dataType: "json",
+        //         data: {
+        //             event_id: eventId,
+        //             passcode: "123456" // Replace with the actual passcode or fetch it dynamically
+        //         },
+        //         success: function(qrCodeData) {
+        //             // Log the QR code data retrieved from the API to the console
+        //             console.log("QR Code Data:", qrCodeData);
 
-                    // Create a new image element for the QR code
-                    const qrCodeImg = document.createElement("img");
-                    qrCodeImg.src = qrCodeData.response; // Set the Base64-encoded image as the src
-                    qrCodeImg.style.position = "absolute";
-                    qrCodeImg.style.bottom = "10px"; // Position at the bottom
-                    qrCodeImg.style.left = "10px"; // Position at the left
-                    qrCodeImg.style.width = "100px"; // Set the size of the QR code
-                    qrCodeImg.style.height = "100px";
+        //             // Create a new image element for the QR code
+        //             const qrCodeImg = document.createElement("img");
+        //             qrCodeImg.src = qrCodeData.response; // Set the Base64-encoded image as the src
+        //             qrCodeImg.style.position = "absolute";
+        //             qrCodeImg.style.bottom = "10px"; // Position at the bottom
+        //             qrCodeImg.style.left = "10px"; // Position at the left
+        //             qrCodeImg.style.width = "100px"; // Set the size of the QR code
+        //             qrCodeImg.style.height = "100px";
 
-                    // Append the QR code image to the event card container
-                    const eventCardContainer = document.querySelector("#event_card_container");
-                    eventCardContainer.style.position = "relative"; // Ensure the container is positioned
-                    eventCardContainer.appendChild(qrCodeImg);
-                },
-                error: function(xhr, status, error) {
-                    // Log any errors encountered during the request to the console
-                    console.error("Error fetching QR code:", error);
-                }
-            });
-        }
-    </script>
+        //             // Append the QR code image to the event card container
+        //             const eventCardContainer = document.querySelector("#event_card_container");
+        //             eventCardContainer.style.position = "relative"; // Ensure the container is positioned
+        //             eventCardContainer.appendChild(qrCodeImg);
+        //         },
+        //         error: function(xhr, status, error) {
+        //             // Log any errors encountered during the request to the console
+        //             console.error("Error fetching QR code:", error);
+        //         }
+        //     });
+       // }
+    </script> -->
     <!-- ----------------------------------------------------------------en of retreave card from event data -------------------------------------------- -->
 
 
@@ -392,8 +422,10 @@
     </script>
     <!-- ///////////////////////////////////////modal////////////////////////////////////////////// -->
 
-    <!-- | -->
+    |
     <!-- ---------------------------------------fetch Event members method-------------------------------------------------->
+
+
     <script>
         $(document).ready(function() {
             const API_BASE_URL = 'http://localhost:8000/api';
@@ -554,16 +586,21 @@
                     const status = document.getElementById('status').value.trim();
                     const total = document.getElementById('total').value.trim();
 
-                    // Validate input fields before sending
                     if (!event_id || !id || !passcode || !memberName || !memberPhone || !status || !total) {
                         alert("⚠️ Please fill in all required fields before sending.");
                         return;
                     }
 
-                    // Format phone number (ensure it starts with 0)
                     const formattedPhone = memberPhone.startsWith('0') ? memberPhone : `0${memberPhone}`;
 
-                    // Construct request payload
+                    // ✅ Extract only the event card filename (Remove full URL)
+                    let eventCardUrl = window.eventCardData ? window.eventCardData.event_card : null;
+                    if (eventCardUrl) {
+                        eventCardUrl = eventCardUrl.split('/').pop(); // Get only filename (e.g., "1738783082-card.jpg")
+                    }
+
+                    console.log("Formatted Event Card Name:", eventCardUrl);
+
                     const messageData = {
                         event_id: event_id,
                         id: id,
@@ -572,9 +609,9 @@
                         status: status,
                         total: total,
                         passcode: passcode,
+                        event_card: eventCardUrl, // Store only the filename
                     };
 
-                    // Send request to backend API
                     const response = await fetch('http://localhost:8000/api/send-message/whatsapp', {
                         method: 'POST',
                         headers: {
@@ -584,139 +621,28 @@
                     });
 
                     const result = await response.json();
-                    console.log("QR Code Base64:", result.response);
+                    console.log("API Response:", result);
 
-                    // Handle different response cases
                     if (response.ok) {
-                        // Display the QR code
                         const qrCodeImage = document.getElementById('qrCodeImage');
-                        qrCodeImage.src = result.response; // Set the Base64-encoded image as the src
-                        qrCodeImage.style.display = 'block'; // Make the image visible
 
+                        // Use the stored QR image path from Laravel
+                        if (result.qr_card_path) {
+                            qrCodeImage.src = result.qr_card_path; // Set image from storage
+                        } else {
+                            qrCodeImage.src = result.response; // Fallback to Base64 if needed
+                        }
+
+                        qrCodeImage.style.display = 'block';
                         alert(`✅ ${result.message}`);
                     } else {
                         alert(`❌ Error: ${result.message || 'Something went wrong.'}`);
                     }
-
                 } catch (error) {
                     console.error('❌ Error sending WhatsApp message:', error);
                     alert('⚠️ An unexpected error occurred while sending the WhatsApp message.');
                 }
             };
-
-            // window.sendMessageViaWhatsapp = async function() {
-            //     try {
-            //         const event_id = eventId;
-            //         const id = document.getElementById('id').value.trim();
-            //         const passcode = document.getElementById('passCode').value.trim();
-            //         const memberName = document.getElementById('memberName').value.trim();
-            //         const memberPhone = document.getElementById('memberPhone').value.trim();
-            //         const status = document.getElementById('status').value.trim();
-            //         const total = document.getElementById('total').value.trim();
-
-            //         // Validate input fields before sending
-            //         if (!event_id || !id || !passcode || !memberName || !memberPhone || !status || !total) {
-            //             alert("⚠️ Please fill in all required fields before sending.");
-            //             return;
-            //         }
-
-            //         console.log("Passcode:", passcode);
-
-            //         // Format phone number (ensure it starts with 0)
-            //         const formattedPhone = memberPhone.startsWith('0') ? memberPhone : `0${memberPhone}`;
-
-            //         // Construct request payload
-            //         const messageData = {
-            //             event_id: event_id,
-            //             id: id,
-            //             name: memberName,
-            //             phone: formattedPhone,
-            //             status: status,
-            //             total: total,
-            //             passcode: passcode,
-            //         };
-
-            //         console.log("🚀 Sending WhatsApp message with data:", messageData);
-
-            //         // Send request to backend API
-            //         const response = await fetch('http://localhost:8000/api/send-message/whatsapp', {
-            //             method: 'POST',
-            //             headers: {
-            //                 'Content-Type': 'application/json',
-            //             },
-            //             body: JSON.stringify(messageData),
-            //         });
-
-            //         const result = await response.json();
-            //         console.log("📩 WhatsApp Server Response:", result);
-
-            //         // Handle different response cases
-            //         if (response.ok) {
-            //             // Display the QR code
-            //             const qrCodeImage = document.getElementById('qrCodeImage');
-            //             qrCodeImage.src = result.response; // Set the Base64-encoded image as the src
-            //             qrCodeImage.style.display = 'block'; // Make the image visible
-
-            //             alert(`✅ ${result.message}`);
-            //         } else {
-            //             alert(`❌ Error: ${result.message || 'Something went wrong.'}`);
-            //         }
-
-            //     } catch (error) {
-            //         console.error('❌ Error sending WhatsApp message:', error);
-            //         alert('⚠️ An unexpected error occurred while sending the WhatsApp message.');
-            //     }
-            // };
-
-            // // ------------------------whatsapp---------------------------------
-            // window.sendMessageViaWhatsapp = async function() {
-            //     const event_id = eventId;
-            //     const id = document.getElementById('id').value;
-            //     const passcode = document.getElementById('passCode').value;
-            //     const memberName = document.getElementById('memberName').value;
-            //     const memberPhone = document.getElementById('memberPhone').value;
-            //     const status = document.getElementById('status').value;
-            //     const total = document.getElementById('total').value;
-
-
-            //     console.log(passcode)
-
-            //     const formattedPhone = memberPhone.startsWith('0') ? memberPhone : `0${memberPhone}`;
-
-            //     const messageData = {
-            //         event_id: event_id,
-            //         id: id,
-            //         name: memberName,
-            //         phone: formattedPhone,
-            //         status: status,
-            //         total: total,
-            //         passcode: passcode,
-            //     };
-
-            //     console.log("Sending SMS with data:", messageData);
-
-            //     try {
-            //         const response = await fetch('http://localhost:8000/api/send-message/whatsapp', {
-            //             method: 'POST',
-            //             headers: {
-            //                 'Content-Type': 'application/json',
-            //             },
-            //             body: JSON.stringify(messageData),
-            //         });
-
-            //         const result = await response.json();
-            //         console.log("Whatsapp Server Response:", result); // Log the full response
-
-            //         if (response.ok) {
-            //             alert(`✅ ${result.message}\n📩 Whatsapp Response: ${JSON.stringify(result.response)}`);
-            //         } else {
-            //             alert(`❌ Error: ${result.message}`);
-            //         }
-            //     } catch (error) {
-            //         console.error('Error sending message:', error);
-            //         alert('An error occurred while sending the Whatsapp message.');
-            //     }
-            // };
 
             // ==================================end via whatsapp=================================
 
@@ -777,7 +703,7 @@
             // ====================================end via sms ============================================
 
 
-            // -----------------------------------  send-both -------------------------------------
+            // ----------------------------------- send-both -------------------------------------
 
             window.sendBoth = async function() {
                 const id = document.getElementById('id').value;
@@ -884,38 +810,38 @@
 
 
             // window.sendToAllMember = async function () {
-            //     const id = document.getElementById('id').value;
-            //     const memberName = document.getElementById('memberName').value;
-            //     const memberPhone = document.getElementById('memberPhone').value;
-            //     const status = document.getElementById('status').value;
-            //     const total = document.getElementById('total').value;
+            // const id = document.getElementById('id').value;
+            // const memberName = document.getElementById('memberName').value;
+            // const memberPhone = document.getElementById('memberPhone').value;
+            // const status = document.getElementById('status').value;
+            // const total = document.getElementById('total').value;
 
-            //     const formattedPhone = memberPhone.startsWith('+') ? memberPhone : `+${memberPhone}`;
+            // const formattedPhone = memberPhone.startsWith('+') ? memberPhone : `+${memberPhone}`;
 
-            //     const messageData = {
-            //         id: id,
-            //         name: memberName,
-            //         phone: formattedPhone,
-            //         status: status,
-            //         total: total,
-            //     };
+            // const messageData = {
+            // id: id,
+            // name: memberName,
+            // phone: formattedPhone,
+            // status: status,
+            // total: total,
+            // };
 
-            //     try {
-            //         const response = await fetch('http://localhost:8000/api/send-message/allmember', {
-            //             method: 'POST',
-            //             headers: {
-            //                 'Content-Type': 'application/json',
-            //             },
-            //             body: JSON.stringify(messageData),
-            //         });
+            // try {
+            // const response = await fetch('http://localhost:8000/api/send-message/allmember', {
+            // method: 'POST',
+            // headers: {
+            // 'Content-Type': 'application/json',
+            // },
+            // body: JSON.stringify(messageData),
+            // });
 
-            //         const result = await response.json();
+            // const result = await response.json();
 
-            //         alert(result.message); // Display the response message
-            //     } catch (error) {
-            //         console.error('Error sending message:', error);
-            //         alert('An error occurred while sending the message.');
-            //     }
+            // alert(result.message); // Display the response message
+            // } catch (error) {
+            // console.error('Error sending message:', error);
+            // alert('An error occurred while sending the message.');
+            // }
             // };
 
 
@@ -984,8 +910,8 @@
                 const whatsappLink = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(messageCaption)}`;
                 const messagePreview = document.getElementById('messagePreview');
                 messagePreview.innerHTML = `
-        <strong>WhatsApp Message (Manual):</strong><br>
-        <a href="${whatsappLink}" target="_blank">Click here to send a WhatsApp message</a>
+    <strong>WhatsApp Message (Manual):</strong><br>
+    <a href="${whatsappLink}" target="_blank">Click here to send a WhatsApp message</a>
     `;
             };
         });
